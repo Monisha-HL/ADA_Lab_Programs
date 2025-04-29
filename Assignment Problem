@@ -1,0 +1,63 @@
+#include <stdio.h>
+#include <limits.h>
+
+#define N 4  // Number of workers/jobs
+
+// Function to swap two integers
+void swap(int* x, int* y) {
+    int temp = *x;
+    *x = *y;
+    *y = temp;
+}
+
+// Function to calculate total cost for a given assignment (permutation)
+int calculateCost(int costMatrix[N][N], int perm[]) {
+    int total = 0;
+    for (int i = 0; i < N; i++) {
+        total += costMatrix[i][perm[i]];
+    }
+    return total;
+}
+
+// Recursive function to generate all permutations and track the minimum cost
+void findMinCost(int costMatrix[N][N], int perm[], int l, int r, int* minCost, int bestAssignment[]) {
+    if (l == r) {
+        int currentCost = calculateCost(costMatrix, perm);
+        if (currentCost < *minCost) {
+            *minCost = currentCost;
+            for (int i = 0; i < N; i++) {
+                bestAssignment[i] = perm[i];
+            }
+        }
+    } else {
+        for (int i = l; i <= r; i++) {
+            swap(&perm[l], &perm[i]);
+            findMinCost(costMatrix, perm, l + 1, r, minCost, bestAssignment);
+            swap(&perm[l], &perm[i]); // backtrack
+        }
+    }
+}
+
+int main() {
+    int costMatrix[N][N] = {
+        {9, 2, 7, 8},
+        {6, 4, 3, 7},
+        {5, 8, 1, 8},
+        {7, 6, 9, 4}
+    };
+
+    int perm[N], bestAssignment[N];
+    for (int i = 0; i < N; i++) perm[i] = i;
+
+    int minCost = INT_MAX;
+
+    findMinCost(costMatrix, perm, 0, N - 1, &minCost, bestAssignment);
+
+    printf("Minimum Assignment Cost: %d\n", minCost);
+    printf("Best Assignment (Worker -> Job):\n");
+    for (int i = 0; i < N; i++) {
+        printf("Worker %d -> Job %d\n", i, bestAssignment[i]);
+    }
+
+    return 0;
+}
