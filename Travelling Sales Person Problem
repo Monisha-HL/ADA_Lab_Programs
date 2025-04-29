@@ -1,0 +1,59 @@
+#include <stdio.h>
+#include <limits.h>
+
+#define N 4  // Number of cities
+
+int minCost = INT_MAX;
+int bestPath[N + 1]; // +1 to include return to starting city
+
+void tsp(int graph[N][N], int path[], int visited[], int pos, int count, int cost, int start) {
+    if (count == N && graph[pos][start]) {
+        int totalCost = cost + graph[pos][start];
+
+        if (totalCost < minCost) {
+            minCost = totalCost;
+            for (int i = 0; i < N; i++) {
+                bestPath[i] = path[i];
+            }
+            bestPath[N] = start; // return to start
+        }
+        return;
+    }
+
+    for (int i = 0; i < N; i++) {
+        if (!visited[i] && graph[pos][i]) {
+            visited[i] = 1;
+            path[count] = i;
+
+            tsp(graph, path, visited, i, count + 1, cost + graph[pos][i], start);
+
+            visited[i] = 0; // backtrack
+        }
+    }
+}
+
+int main() {
+    int graph[N][N] = {
+        {0, 10, 15, 20},
+        {10, 0, 35, 25},
+        {15, 35, 0, 30},
+        {20, 25, 30, 0}
+    };
+
+    int visited[N] = {0};
+    int path[N];
+
+    visited[0] = 1; // Start from city 0
+    path[0] = 0;
+
+    tsp(graph, path, visited, 0, 1, 0, 0);
+
+    printf("Minimum cost of TSP: %d\n", minCost);
+    printf("Path taken: ");
+    for (int i = 0; i <= N; i++) {
+        printf("%d ", bestPath[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
